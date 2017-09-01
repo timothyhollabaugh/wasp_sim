@@ -1,0 +1,14 @@
+[package]
+name = "wasp_sim"
+version = "0.1.0"
+authors = ["Tim <timothyhollabaugh@gmail.com>"]
+
+[dependencies]
+wasp = { path = "../wasp"}
+hardware = { path = "../hardware-rs"}
+kiss3d = "0.9.0"
+nalgebra = "0.12.3"
+three = "0.2.0"
+cgmath = "0.15.0"
+mint = "0.4.2"
+time = "0.1"
