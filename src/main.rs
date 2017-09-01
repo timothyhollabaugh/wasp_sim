@@ -116,20 +116,22 @@ fn main() {
     let x_simulated_stepper = SimulatedStepper::new();
 
     let mut x_step_output = StepOutput::new(&mut pins.x_step, &x_simulated_stepper);
-    let mut x_direction_output = StepOutput::new(&mut pins.x_dir, &x_simulated_stepper);
+    let mut x_direction_output = DirectionOutput::new(&mut pins.x_dir, &x_simulated_stepper);
 
     let x_stepper_config = StepperMotorConfig {
         min_travel: 0.0,
         max_travel: 200.0,
 
-        steps_per_millimeter: 200,
+        steps_per_millimeter: 1,
         pulse_length: 100,
     };
 
     let mut x_stepper = StepperMotor::new(&mut x_step_output, &mut x_direction_output, &time, x_stepper_config);
 
     x_stepper.set_direction(Direction::Forward);
-    x_stepper.set_velocity(1.0);
+    x_stepper.set_velocity(60.0);
+    println!("Set velocity to: {}", x_stepper.get_velocity());
+    println!("Set microseconds per step to: {}", x_stepper.get_microseconds_per_step());
 
     while window.render() {
         //c.prepend_to_local_rotation(&rot);
