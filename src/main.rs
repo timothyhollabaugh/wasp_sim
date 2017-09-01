@@ -11,6 +11,7 @@ use kiss3d::window::Window;
 use kiss3d::light::Light;
 
 use wasp::motor::Motor;
+use wasp::motor::Direction;
 use wasp::motor::StepperMotor;
 use wasp::motor::StepperMotorConfig;
 
@@ -19,7 +20,8 @@ use hardware::pin::Pin;
 mod simulator;
 use simulator::SimulatedPins;
 use simulator::SimulatedStepper;
-use simulator::StepperDirection;
+use simulator::StepOutput;
+use simulator::DirectionOutput;
 use simulator::SimulatedTime;
 
 const MAX_X: f32 = 200.0;
@@ -111,7 +113,10 @@ fn main() {
 
     let time = SimulatedTime::new();
 
-    let mut x_stepper_output = SimulatedStepper::new(&mut pins.x_step, &mut pins.x_dir);
+    let x_simulated_stepper = SimulatedStepper::new();
+
+    let mut x_step_output = StepOutput::new(&mut pins.x_step, &x_simulated_stepper);
+    let mut x_direction_output = StepOutput::new(&mut pins.x_dir, &x_simulated_stepper);
 
     let x_stepper_config = StepperMotorConfig {
         min_travel: 0.0,
@@ -121,11 +126,17 @@ fn main() {
         pulse_length: 100,
     };
 
-    let x_stepper = StepperMotor::new(&mut x_stepper_output, &mut x_stepper_output.direction, &time, x_stepper_config);
+    let mut x_stepper = StepperMotor::new(&mut x_step_output, &mut x_direction_output, &time, x_stepper_config);
+
+    x_stepper.set_direction(Direction::Forward);
+    x_stepper.set_velocity(1.0);
 
     while window.render() {
         //c.prepend_to_local_rotation(&rot);
         draw_axis(&mut window);
+        x_stepper.update();
+        println!("Stepper pos: {}", x_stepper.get_position());
+        println!("Simulated Stepper step: {}", x_simulated_stepper.get_step());
         //c.set_local_transformation(na::convert(na::Translation3::from_vector(hardware.get_position())));
     }
 }
