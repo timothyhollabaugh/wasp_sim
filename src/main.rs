@@ -6,7 +6,7 @@ extern crate hardware;
 extern crate kiss3d;
 extern crate nalgebra as na;
 
-use na::{Vector3, Point3, UnitQuaternion};
+use na::{Vector3, Point3};
 use kiss3d::window::Window;
 use kiss3d::camera::ArcBall;
 use kiss3d::light::Light;

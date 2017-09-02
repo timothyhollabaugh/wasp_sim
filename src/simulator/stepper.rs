@@ -1,4 +1,12 @@
 
+use std::cell::Cell;
+
+use hardware::pin::Pin;
+
+use hardware::peripherals::digital_io::DigitalOutput;
+use hardware::peripherals::digital_io::DigitalValue;
+
+use wasp::motor::Direction;
 
 pub struct SimulatedStepper {
     step: Cell<i32>,
