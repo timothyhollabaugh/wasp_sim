@@ -20,7 +20,8 @@ use hardware::pin::Pin;
 
 mod simulator;
 use simulator::SimulatedPins;
-use simulator::SimulatedTime;
+
+use simulator::time::SimulatedTime;
 
 use simulator::stepper::SimulatedStepper;
 use simulator::stepper::StepOutput;
