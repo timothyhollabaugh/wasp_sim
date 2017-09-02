@@ -20,10 +20,11 @@ use hardware::pin::Pin;
 
 mod simulator;
 use simulator::SimulatedPins;
-use simulator::SimulatedStepper;
-use simulator::StepOutput;
-use simulator::DirectionOutput;
 use simulator::SimulatedTime;
+
+use simulator::stepper::SimulatedStepper;
+use simulator::stepper::StepOutput;
+use simulator::stepper::DirectionOutput;
 
 const MAX_X: f32 = 200.0;
 const MIN_X: f32 = -200.0;
