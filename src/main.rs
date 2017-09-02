@@ -6,14 +6,15 @@ extern crate hardware;
 extern crate kiss3d;
 extern crate nalgebra as na;
 
-use na::{Vector3, UnitQuaternion};
+use na::{Vector3, Point3, UnitQuaternion};
 use kiss3d::window::Window;
+use kiss3d::camera::ArcBall;
 use kiss3d::light::Light;
 
 use wasp::motor::Motor;
 use wasp::motor::Direction;
-use wasp::motor::StepperMotor;
-use wasp::motor::StepperMotorConfig;
+use wasp::motor::StepperDriver;
+use wasp::motor::StepperDriverConfig;
 
 use hardware::pin::Pin;
 
@@ -94,6 +95,8 @@ fn main() {
     let mut window = Window::new("WASP Simulator");
     window.set_background_color(1.0, 1.0, 1.0);
 
+    let mut camera = ArcBall::new(Point3::from_coordinates(Vector3::new(-10.0, 10.0, 10.0)), Point3::origin());
+
     let mut c = window.add_cube(1.0, 1.0, 1.0);
     c.set_color(1.0, 0.0, 0.0);
 
@@ -118,27 +121,27 @@ fn main() {
     let mut x_step_output = StepOutput::new(&mut pins.x_step, &x_simulated_stepper);
     let mut x_direction_output = DirectionOutput::new(&mut pins.x_dir, &x_simulated_stepper);
 
-    let x_stepper_config = StepperMotorConfig {
+    let x_stepper_config = StepperDriverConfig {
         min_travel: 0.0,
         max_travel: 200.0,
 
-        steps_per_millimeter: 1,
-        pulse_length: 100,
+        steps_per_millimeter: 200,
+        pulse_length: 1,
     };
 
-    let mut x_stepper = StepperMotor::new(&mut x_step_output, &mut x_direction_output, &time, x_stepper_config);
+    let mut x_stepper = StepperDriver::new(&mut x_step_output, &mut x_direction_output, &time, x_stepper_config);
 
     x_stepper.set_direction(Direction::Forward);
     x_stepper.set_velocity(60.0);
     println!("Set velocity to: {}", x_stepper.get_velocity());
     println!("Set microseconds per step to: {}", x_stepper.get_microseconds_per_step());
 
-    while window.render() {
+    while window.render_with_camera(&mut camera) {
         //c.prepend_to_local_rotation(&rot);
         draw_axis(&mut window);
         x_stepper.update();
-        println!("Stepper pos: {}", x_stepper.get_position());
-        println!("Simulated Stepper step: {}", x_simulated_stepper.get_step());
-        //c.set_local_transformation(na::convert(na::Translation3::from_vector(hardware.get_position())));
+        //println!("Stepper pos: {}", x_stepper.get_position());
+        //println!("Simulated Stepper step: {}", x_simulated_stepper.get_step());
+        c.set_local_transformation(na::convert(na::Translation3::from_vector(Vector3::new((x_simulated_stepper.get_step() as f64) / (x_stepper_config.steps_per_millimeter as f64), 0.0, 0.0))));
     }
 }

@@ -32,7 +32,7 @@ impl SimulatedStepper {
     }
 
     pub fn step(&self) {
-        println!("Simulated Stepper Stepping!");
+        //println!("Simulated Stepper Stepping!");
         let step = self.step.get();
         let direction = self.direction.get();
         self.step.set(step + direction as i32);
@@ -65,7 +65,7 @@ impl<'a> StepOutput<'a> {
 
 impl<'a> DigitalOutput for StepOutput<'a> {
     fn write(&mut self, val: DigitalValue) {
-        println!("StepOutput Write: {:?}", val);
+        //println!("StepOutput Write: {:?}", val);
         if self.val == DigitalValue::Low && val == DigitalValue::High {
             self.stepper.step();
         }
