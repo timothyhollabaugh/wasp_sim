@@ -16,6 +16,8 @@ use wasp::motor::Direction;
 use wasp::motor::StepperDriver;
 use wasp::motor::StepperDriverConfig;
 
+use wasp::motion::CartesianMotionPlanner;
+
 use hardware::pin::Pin;
 
 mod simulator;
@@ -118,11 +120,6 @@ fn main() {
 
     let time = SimulatedTime::new();
 
-    let x_simulated_stepper = SimulatedStepper::new();
-
-    let mut x_step_output = StepOutput::new(&mut pins.x_step, &x_simulated_stepper);
-    let mut x_direction_output = DirectionOutput::new(&mut pins.x_dir, &x_simulated_stepper);
-
     let x_stepper_config = StepperDriverConfig {
         min_travel: 0.0,
         max_travel: 200.0,
@@ -130,11 +127,47 @@ fn main() {
         steps_per_millimeter: 200,
         pulse_length: 1,
     };
-
+    let x_simulated_stepper = SimulatedStepper::new();
+    let mut x_step_output = StepOutput::new(&mut pins.x_step, &x_simulated_stepper);
+    let mut x_direction_output = DirectionOutput::new(&mut pins.x_dir, &x_simulated_stepper);
     let mut x_stepper = StepperDriver::new(&mut x_step_output, &mut x_direction_output, &time, x_stepper_config);
 
+
+    let y_stepper_config = StepperDriverConfig {
+        min_travel: 0.0,
+        max_travel: 200.0,
+
+        steps_per_millimeter: 200,
+        pulse_length: 1,
+    };
+    let y_simulated_stepper = SimulatedStepper::new();
+    let mut y_step_output = StepOutput::new(&mut pins.y_step, &y_simulated_stepper);
+    let mut y_direction_output = DirectionOutput::new(&mut pins.y_dir, &y_simulated_stepper);
+    let mut y_stepper = StepperDriver::new(&mut y_step_output, &mut y_direction_output, &time, y_stepper_config);
+
+
+    let z_stepper_config = StepperDriverConfig {
+        min_travel: 0.0,
+        max_travel: 200.0,
+
+        steps_per_millimeter: 200,
+        pulse_length: 1,
+    };
+    let z_simulated_stepper = SimulatedStepper::new();
+    let mut z_step_output = StepOutput::new(&mut pins.z_step, &z_simulated_stepper);
+    let mut z_direction_output = DirectionOutput::new(&mut pins.z_dir, &z_simulated_stepper);
+    let mut z_stepper = StepperDriver::new(&mut z_step_output, &mut z_direction_output, &time, z_stepper_config);
+    
+    /*
     x_stepper.set_direction(Direction::Forward);
     x_stepper.set_velocity(60.0);
+    y_stepper.set_direction(Direction::Forward);
+    y_stepper.set_velocity(60.0);
+    z_stepper.set_direction(Direction::Forward);
+    z_stepper.set_velocity(60.0);
+    */
+
+
     println!("Set velocity to: {}", x_stepper.get_velocity());
     println!("Set microseconds per step to: {}", x_stepper.get_microseconds_per_step());
 
@@ -142,8 +175,13 @@ fn main() {
         //c.prepend_to_local_rotation(&rot);
         draw_axis(&mut window);
         x_stepper.update();
+        y_stepper.update();
+        z_stepper.update();
         //println!("Stepper pos: {}", x_stepper.get_position());
         //println!("Simulated Stepper step: {}", x_simulated_stepper.get_step());
-        c.set_local_transformation(na::convert(na::Translation3::from_vector(Vector3::new((x_simulated_stepper.get_step() as f64) / (x_stepper_config.steps_per_millimeter as f64), 0.0, 0.0))));
+        let x_coord = (x_simulated_stepper.get_step() as f64) / (x_stepper_config.steps_per_millimeter as f64);
+        let y_coord = (y_simulated_stepper.get_step() as f64) / (y_stepper_config.steps_per_millimeter as f64);
+        let z_coord = (z_simulated_stepper.get_step() as f64) / (z_stepper_config.steps_per_millimeter as f64);
+        c.set_local_transformation(na::convert(na::Translation3::from_vector(Vector3::new(x_coord, y_coord, z_coord))));
     }
 }

@@ -6,7 +6,23 @@ use hardware::pin::Pin;
 use hardware::peripherals::digital_io::DigitalOutput;
 use hardware::peripherals::digital_io::DigitalValue;
 
+use hardware::peripherals::time::Time;
+
 use wasp::motor::Direction;
+use wasp::motor::StepperDriverConfig;
+use wasp::motor::StepperDriver;
+
+// Does not compile yet. Lifetimes are hard.
+/*
+fn make_stepper<'a>(step_pin: &'a mut Pin<u8>, dir_pin: &'a mut Pin<u8>, time: &'a Time, config: StepperDriverConfig) -> (SimulatedStepper, StepperDriver<'a>, StepOutput<'a>, DirectionOutput<'a>) {
+    let simulated_stepper = SimulatedStepper::new();
+    let step_output = StepOutput::new(step_pin, &simulated_stepper);
+    let direction_output = DirectionOutput::new(dir_pin, &simulated_stepper);
+    let stepper_driver = StepperDriver::new(&mut step_output, &mut direction_output, time, config);
+
+    (simulated_stepper, stepper_driver, step_output, direction_output)
+}
+*/
 
 pub struct SimulatedStepper {
     step: Cell<i32>,
@@ -74,8 +90,8 @@ pub struct DirectionOutput<'a> {
 }
 
 impl<'a> DirectionOutput<'a> {
-    pub fn new(pin: &'a mut Pin<u8>, stepper: &'a SimulatedStepper) -> StepOutput<'a> {
-        StepOutput {
+    pub fn new(pin: &'a mut Pin<u8>, stepper: &'a SimulatedStepper) -> DirectionOutput<'a> {
+        DirectionOutput {
             stepper: stepper,
             val: DigitalValue::Low,
             pin: pin,
